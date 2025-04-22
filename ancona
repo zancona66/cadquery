@@ -1,0 +1,42 @@
+import cadquery as cq
+
+# -------- Watch Case (40mm x 11.5mm) --------
+case = (
+    cq.Workplane("XY")
+    .circle(20).extrude(11.5)  # 40mm diameter
+    .faces(">Z").workplane().hole(30)  # Crystal seat
+    .faces("<Z").workplane().hole(26)  # Caseback recess
+)
+
+# Crown at 3 o'clock (6mm diameter)
+crown = (
+    cq.Workplane("XY")
+    .workplane(offset=3)
+    .center(23, 0)
+    .circle(3).extrude(3)
+)
+
+# Lugs (20mm spacing)
+top_lug = cq.Workplane("XY").center(0, 23.5).rect(6, 3).extrude(3)
+bottom_lug = cq.Workplane("XY").center(0, -23.5).rect(6, 3).extrude(3)
+
+# Combine parts
+watch_case = case.union(crown).union(top_lug).union(bottom_lug)
+
+# Export watch case STL
+cq.exporters.export(watch_case, "Ancona_Watch_Case_Original_FINAL.stl")
+
+# -------- Caseback (40mm, 2mm thick) with Raised Engraving --------
+caseback = cq.Workplane("XY").circle(20).extrude(2)
+
+# Engraving placeholders (raised blocks)
+text1 = cq.Workplane("XY").center(0, 8).rect(12, 1.5).extrude(0.5)   # ANCONA
+text2 = cq.Workplane("XY").center(0, 0).rect(4, 4).extrude(0.5)     # AA
+text3 = cq.Workplane("XY").center(0, -6).rect(22, 1.5).extrude(0.5) # AUTOMATIC – 21J – MADE IN USA
+text4 = cq.Workplane("XY").center(0, -10).rect(15, 1.5).extrude(0.5)# MODEL: ANCONA1
+
+# Combine engraving
+caseback_full = caseback.union(text1).union(text2).union(text3).union(text4)
+
+# Export caseback STL
+cq.exporters.export(caseback_full, "Ancona_Watch_Caseback_Engraved_FINAL.stl")
